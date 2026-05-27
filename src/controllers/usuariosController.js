@@ -1,6 +1,17 @@
 const sql = require('../config/db');
 const bcrypt = require('bcryptjs'); // Biblioteca para encriptar senhas
+const jwt = require('jsonwebtoken');
 
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Lista todos os usuários
+ *     tags: [Usuários]
+ *     responses:
+ *       200:
+ *         description: Lista de usuários
+ */
 // GET /api/usuarios - Listar todos os usuários (sempre omitindo a senha)
 exports.listarTodos = async (req, res) => {
     try {
@@ -101,6 +112,25 @@ exports.atualizar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   delete:
+ *     summary: Remove um usuário
+ *     tags: [Usuários]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Usuário removido
+ *       404:
+ *         description: Usuário não encontrado
+ */
 // DELETE /api/usuarios/:id - Remover um usuário
 exports.remover = async (req, res) => {
     try {
@@ -119,5 +149,73 @@ exports.remover = async (req, res) => {
     } catch (erro) {
         console.error(erro);
         res.status(500).json({ erro: 'Erro ao remover o usuário.' });
+    }
+};
+
+/**
+ * @swagger
+ * /api/usuarios/login:
+ *   post:
+ *     summary: Faz login do usuário e retorna JWT
+ *     tags: [Usuários]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               senha:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login bem-sucedido, retorna token
+ *       401:
+ *         description: Email ou senha inválidos
+ */
+exports.login = async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+
+        if (!email || !senha) {
+            return res.status(400).json({ erro: 'Email e senha são obrigatórios.' });
+        }
+
+        const usuarios = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
+        if (usuarios.length === 0) {
+            return res.status(401).json({ erro: 'Email ou senha inválidos.' });
+        }
+
+        const usuario = usuarios[0];
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
+
+        if (!senhaCorreta) {
+            return res.status(401).json({ erro: 'Email ou senha inválidos.' });
+        }
+
+        const payload = {
+            userId: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            tipo_usuario: usuario.tipo_usuario
+        };
+
+        const token = jwt.sign(
+            payload,
+            process.env.JWT_SECRET || 'secret-temporario',
+            { expiresIn: '1h' }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Usuário logado com sucesso!",
+            token: token,
+            user: payload
+        });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: 'Erro interno do servidor.' });
     }
 };

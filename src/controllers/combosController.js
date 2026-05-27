@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/combos:
+ *   get:
+ *     summary: Listar todos os combos com seus respectivos doces
+ *     tags: [Combos]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/combos - Listar todos os combos com seus respectivos doces
 exports.listarTodos = async (req, res) => {
     try {
@@ -26,6 +36,22 @@ exports.listarTodos = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/combos/{id}:
+ *   get:
+ *     summary: Buscar combo específico
+ *     tags: [Combos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/combos/:id - Buscar combo específico
 exports.buscarPorId = async (req, res) => {
     try {
@@ -57,6 +83,16 @@ exports.buscarPorId = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/combos:
+ *   post:
+ *     summary: Criar um novo combo
+ *     tags: [Combos]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/combos - Criar um novo combo
 exports.criar = async (req, res) => {
     try {
@@ -97,6 +133,22 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/combos/{id}:
+ *   put:
+ *     summary: Atualizar um combo
+ *     tags: [Combos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/combos/:id - Atualizar um combo
 exports.atualizar = async (req, res) => {
     try {
@@ -145,6 +197,22 @@ exports.atualizar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/combos/{id}:
+ *   delete:
+ *     summary: Remover um combo
+ *     tags: [Combos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/combos/:id - Remover um combo
 exports.remover = async (req, res) => {
     try {

@@ -1,12 +1,22 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/receitas:
+ *   get:
+ *     summary: Lista todas as receitas
+ *     tags: [Receitas]
+ *     responses:
+ *       200:
+ *         description: Lista de receitas retornada com sucesso
+ */
 // GET /api/receitas - Listar todas as receitas (trazendo o nome do doce junto)
 exports.listarTodas = async (req, res) => {
     try {
         const receitas = await sql`
             SELECT 
                 r.id, r.doce_id, d.nome AS nome_doce, 
-                r.modo_preparo, r.tempo_preparo_minutos, r.rendimento_porcoes, r.atualizado_em
+                r.modo_preparo, r.tempo_preparo_minutos, r.rendimento_porcoes, r.imagem, r.atualizado_em
             FROM receitas r
             JOIN doces d ON r.doce_id = d.id
             ORDER BY r.id ASC
@@ -41,10 +51,37 @@ exports.buscarPorDoce = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/receitas:
+ *   post:
+ *     summary: Cria uma nova receita
+ *     tags: [Receitas]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               doce_id:
+ *                 type: integer
+ *               modo_preparo:
+ *                 type: string
+ *               tempo_preparo_minutos:
+ *                 type: integer
+ *               rendimento_porcoes:
+ *                 type: integer
+ *               imagem:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Receita criada
+ */
 // POST /api/receitas - Criar uma nova receita vinculada a um doce
 exports.criar = async (req, res) => {
     try {
-        const { doce_id, modo_preparo, tempo_preparo_minutos, rendimento_porcoes } = req.body;
+        const { doce_id, modo_preparo, tempo_preparo_minutos, rendimento_porcoes, imagem } = req.body;
 
         if (!doce_id || !modo_preparo) {
             return res.status(400).json({ erro: 'O ID do doce e o modo de preparo são obrigatórios.' });
@@ -63,8 +100,8 @@ exports.criar = async (req, res) => {
         }
 
         const novaReceita = await sql`
-            INSERT INTO receitas (doce_id, modo_preparo, tempo_preparo_minutos, rendimento_porcoes)
-            VALUES (${doce_id}, ${modo_preparo}, ${tempo_preparo_minutos}, ${rendimento_porcoes})
+            INSERT INTO receitas (doce_id, modo_preparo, tempo_preparo_minutos, rendimento_porcoes, imagem)
+            VALUES (${doce_id}, ${modo_preparo}, ${tempo_preparo_minutos}, ${rendimento_porcoes}, ${imagem || null})
             RETURNING *
         `;
 
@@ -75,11 +112,42 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/receitas/{id}:
+ *   put:
+ *     summary: Atualiza uma receita existente
+ *     tags: [Receitas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               modo_preparo:
+ *                 type: string
+ *               tempo_preparo_minutos:
+ *                 type: integer
+ *               rendimento_porcoes:
+ *                 type: integer
+ *               imagem:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Receita atualizada
+ */
 // PUT /api/receitas/:id - Atualizar uma receita existente
 exports.atualizar = async (req, res) => {
     try {
         const { id } = req.params;
-        const { modo_preparo, tempo_preparo_minutos, rendimento_porcoes } = req.body;
+        const { modo_preparo, tempo_preparo_minutos, rendimento_porcoes, imagem } = req.body;
 
         const receitaExistente = await sql`SELECT id FROM receitas WHERE id = ${id}`;
         if (receitaExistente.length === 0) {
@@ -92,6 +160,7 @@ exports.atualizar = async (req, res) => {
                 modo_preparo = COALESCE(${modo_preparo}, modo_preparo),
                 tempo_preparo_minutos = COALESCE(${tempo_preparo_minutos}, tempo_preparo_minutos),
                 rendimento_porcoes = COALESCE(${rendimento_porcoes}, rendimento_porcoes),
+                imagem = COALESCE(${imagem}, imagem),
                 atualizado_em = CURRENT_TIMESTAMP
             WHERE id = ${id}
             RETURNING *

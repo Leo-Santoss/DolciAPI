@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/estoque/doces:
+ *   get:
+ *     summary: Listar o estoque de todos os doces
+ *     tags: [EstoqueDoces]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/estoque/doces - Listar o estoque de todos os doces
 exports.listarTodos = async (req, res) => {
     try {
@@ -17,6 +27,22 @@ exports.listarTodos = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/doces/{doceId}:
+ *   get:
+ *     summary: Buscar o estoque de um doce específico
+ *     tags: [EstoqueDoces]
+ *     parameters:
+ *       - in: path
+ *         name: doceId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/estoque/doces/:doceId - Buscar o estoque de um doce específico
 exports.buscarPorDoce = async (req, res) => {
     try {
@@ -40,6 +66,16 @@ exports.buscarPorDoce = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/doces:
+ *   post:
+ *     summary: Definir a quantidade exata em estoque (Cria se não existir, atualiza se existir)
+ *     tags: [EstoqueDoces]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/estoque/doces - Definir a quantidade exata em estoque (Cria se não existir, atualiza se existir)
 exports.definirEstoque = async (req, res) => {
     try {
@@ -73,6 +109,22 @@ exports.definirEstoque = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/doces/{doceId}/movimentar:
+ *   put:
+ *     summary: Adicionar ou Subtrair do estoque (Ex: +10 ou -5)
+ *     tags: [EstoqueDoces]
+ *     parameters:
+ *       - in: path
+ *         name: doceId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/estoque/doces/:doceId/movimentar - Adicionar ou Subtrair do estoque (Ex: +10 ou -5)
 exports.movimentar = async (req, res) => {
     try {
@@ -106,6 +158,22 @@ exports.movimentar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/doces/{doceId}:
+ *   delete:
+ *     summary: Remover o controle de estoque de um doce
+ *     tags: [EstoqueDoces]
+ *     parameters:
+ *       - in: path
+ *         name: doceId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/estoque/doces/:doceId - Remover o controle de estoque de um doce
 exports.remover = async (req, res) => {
     try {

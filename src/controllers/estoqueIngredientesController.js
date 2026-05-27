@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes:
+ *   get:
+ *     summary: Listar todos os ingredientes
+ *     tags: [EstoqueIngredientes]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/estoque/ingredientes - Listar todos os ingredientes
 exports.listarTodos = async (req, res) => {
     try {
@@ -14,6 +24,22 @@ exports.listarTodos = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes/{id}:
+ *   get:
+ *     summary: Buscar um ingrediente específico
+ *     tags: [EstoqueIngredientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/estoque/ingredientes/:id - Buscar um ingrediente específico
 exports.buscarPorId = async (req, res) => {
     try {
@@ -33,6 +59,16 @@ exports.buscarPorId = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes:
+ *   post:
+ *     summary: Cadastrar um novo ingrediente
+ *     tags: [EstoqueIngredientes]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/estoque/ingredientes - Cadastrar um novo ingrediente
 exports.criar = async (req, res) => {
     try {
@@ -60,6 +96,22 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes/{id}:
+ *   put:
+ *     summary: Atualizar dados cadastrais (nome, unidade)
+ *     tags: [EstoqueIngredientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/estoque/ingredientes/:id - Atualizar dados cadastrais (nome, unidade)
 exports.atualizar = async (req, res) => {
     try {
@@ -89,6 +141,22 @@ exports.atualizar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes/{id}/movimentar:
+ *   put:
+ *     summary: Somar (compra) ou Subtrair (uso)
+ *     tags: [EstoqueIngredientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/estoque/ingredientes/:id/movimentar - Somar (compra) ou Subtrair (uso)
 exports.movimentar = async (req, res) => {
     try {
@@ -122,6 +190,22 @@ exports.movimentar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/estoque/ingredientes/{id}:
+ *   delete:
+ *     summary: Remover um ingrediente do sistema
+ *     tags: [EstoqueIngredientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/estoque/ingredientes/:id - Remover um ingrediente do sistema
 exports.remover = async (req, res) => {
     try {

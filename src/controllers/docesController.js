@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/doces:
+ *   get:
+ *     summary: Lista todos os doces
+ *     tags: [Doces]
+ *     responses:
+ *       200:
+ *         description: Lista de doces retornada com sucesso
+ */
 // Listar todos os doces (GET /api/doces)
 exports.listarTodos = async (req, res) => {
     try {
@@ -28,10 +38,35 @@ exports.buscarPorId = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/doces:
+ *   post:
+ *     summary: Cria um novo doce
+ *     tags: [Doces]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               descricao:
+ *                 type: string
+ *               preco:
+ *                 type: number
+ *               imagem:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Doce criado
+ */
 // Criar um novo doce (POST /api/doces)
 exports.criar = async (req, res) => {
     try {
-        const { nome, descricao, preco } = req.body;
+        const { nome, descricao, preco, imagem } = req.body;
 
         if (!nome || !preco) {
             return res.status(400).json({ erro: 'Nome e preço são obrigatórios.' });
@@ -39,8 +74,8 @@ exports.criar = async (req, res) => {
 
         // O RETURNING * traz o objeto recém-criado, incluindo o ID gerado pelo banco
         const novoDoce = await sql`
-            INSERT INTO doces (nome, descricao, preco)
-            VALUES (${nome}, ${descricao}, ${preco})
+            INSERT INTO doces (nome, descricao, preco, imagem)
+            VALUES (${nome}, ${descricao}, ${preco}, ${imagem || null})
             RETURNING *
         `;
 
@@ -51,11 +86,44 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/doces/{id}:
+ *   put:
+ *     summary: Atualiza um doce existente
+ *     tags: [Doces]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               descricao:
+ *                 type: string
+ *               preco:
+ *                 type: number
+ *               ativo:
+ *                 type: boolean
+ *               imagem:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Doce atualizado
+ */
 // Atualizar um doce existente (PUT /api/doces/:id)
 exports.atualizar = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nome, descricao, preco, ativo } = req.body;
+        const { nome, descricao, preco, ativo, imagem } = req.body;
 
         // Verifica se o doce existe antes de atualizar
         const doceExistente = await sql`SELECT id FROM doces WHERE id = ${id}`;
@@ -69,7 +137,8 @@ exports.atualizar = async (req, res) => {
                 nome = COALESCE(${nome}, nome),
                 descricao = COALESCE(${descricao}, descricao),
                 preco = COALESCE(${preco}, preco),
-                ativo = COALESCE(${ativo}, ativo)
+                ativo = COALESCE(${ativo}, ativo),
+                imagem = COALESCE(${imagem}, imagem)
             WHERE id = ${id}
             RETURNING *
         `;

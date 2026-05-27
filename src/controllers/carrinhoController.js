@@ -1,14 +1,42 @@
 const sql = require('../config/db');
 
-// GET /api/carrinhos/usuario/:usuarioId - Buscar o carrinho do usuário com todos os itens
+/**
+ * @swagger
+ * /api/carrinhos/usuario/{usuarioId}:
+ *   get:
+ *     summary: Retorna o carrinho do usuário ou visitante
+ *     tags: [Carrinhos]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: header
+ *         name: x-session-id
+ *         required: false
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Carrinho retornado
+ */
+// GET /api/carrinhos/usuario/:usuarioId - Buscar o carrinho do usuário
 exports.buscarPorUsuario = async (req, res) => {
     try {
         const { usuarioId } = req.params;
+        const sessionId = req.headers['x-session-id']; // Pega o header para visitantes
 
-        // Busca o ID do carrinho ativo
-        const carrinho = await sql`SELECT id FROM carrinhos WHERE usuario_id = ${usuarioId}`;
+        let carrinho;
+        if (usuarioId && usuarioId !== 'null' && usuarioId !== 'undefined') {
+            carrinho = await sql`SELECT id FROM carrinhos WHERE usuario_id = ${usuarioId}`;
+        } else if (sessionId) {
+            carrinho = await sql`SELECT id FROM carrinhos WHERE sessao_id = ${sessionId} AND usuario_id IS NULL`;
+        } else {
+            return res.status(400).json({ erro: 'ID de usuário ou ID de sessão (header) é necessário.' });
+        }
 
-        if (carrinho.length === 0) {
+        if (!carrinho || carrinho.length === 0) {
             // Retorna um carrinho vazio amigável em vez de erro
             return res.json({ id: null, usuario_id: usuarioId, itens: [], valor_total: 0 });
         }
@@ -48,10 +76,45 @@ exports.buscarPorUsuario = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/carrinhos/usuario/{usuarioId}/itens:
+ *   post:
+ *     summary: Adiciona item ao carrinho
+ *     tags: [Carrinhos]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: header
+ *         name: x-session-id
+ *         required: false
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               doce_id:
+ *                 type: integer
+ *               combo_id:
+ *                 type: integer
+ *               quantidade:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Item adicionado
+ */
 // POST /api/carrinhos/usuario/:usuarioId/itens - Adicionar um item ao carrinho
 exports.adicionarItem = async (req, res) => {
     try {
         const { usuarioId } = req.params;
+        const sessionId = req.headers['x-session-id'];
         const { doce_id, combo_id, quantidade } = req.body;
 
         // Validação da regra do banco: ou tem doce_id, ou tem combo_id, mas não ambos
@@ -62,17 +125,32 @@ exports.adicionarItem = async (req, res) => {
         const qtd = quantidade || 1;
 
         await sql.begin(async (t) => {
-            // 1. Verifica se o usuário já tem um carrinho. Se não, cria um.
-            let carrinho = await t`SELECT id FROM carrinhos WHERE usuario_id = ${usuarioId}`;
+            let carrinho;
             let carrinhoId;
 
-            if (carrinho.length === 0) {
-                const novoCarrinho = await t`
-                    INSERT INTO carrinhos (usuario_id) VALUES (${usuarioId}) RETURNING id
-                `;
-                carrinhoId = novoCarrinho[0].id;
+            // Lógica para visitante vs logado
+            if (usuarioId && usuarioId !== 'null' && usuarioId !== 'undefined') {
+                carrinho = await t`SELECT id FROM carrinhos WHERE usuario_id = ${usuarioId}`;
+                if (carrinho.length === 0) {
+                    const novoCarrinho = await t`
+                        INSERT INTO carrinhos (usuario_id) VALUES (${usuarioId}) RETURNING id
+                    `;
+                    carrinhoId = novoCarrinho[0].id;
+                } else {
+                    carrinhoId = carrinho[0].id;
+                }
+            } else if (sessionId) {
+                carrinho = await t`SELECT id FROM carrinhos WHERE sessao_id = ${sessionId} AND usuario_id IS NULL`;
+                if (carrinho.length === 0) {
+                    const novoCarrinho = await t`
+                        INSERT INTO carrinhos (sessao_id) VALUES (${sessionId}) RETURNING id
+                    `;
+                    carrinhoId = novoCarrinho[0].id;
+                } else {
+                    carrinhoId = carrinho[0].id;
+                }
             } else {
-                carrinhoId = carrinho[0].id;
+                throw new Error('Identificação (usuário ou sessão) necessária para o carrinho.');
             }
 
             // 2. Verifica se este exato produto já está no carrinho
@@ -154,6 +232,22 @@ exports.removerItem = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/carrinhos/usuario/{usuarioId}:
+ *   delete:
+ *     summary: Esvazia o carrinho inteiro
+ *     tags: [Carrinhos]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Carrinho esvaziado
+ */
 // DELETE /api/carrinhos/usuario/:usuarioId - Esvaziar o carrinho inteiro
 exports.esvaziarCarrinho = async (req, res) => {
     try {
@@ -174,5 +268,72 @@ exports.esvaziarCarrinho = async (req, res) => {
     } catch (erro) {
         console.error(erro);
         res.status(500).json({ erro: 'Erro ao esvaziar o carrinho.' });
+    }
+};
+
+/**
+ * @swagger
+ * /api/carrinhos/associar:
+ *   put:
+ *     summary: Associa um carrinho de visitante ao usuário
+ *     tags: [Carrinhos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sessao_id:
+ *                 type: string
+ *               usuario_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Carrinho associado com sucesso
+ */
+exports.associarCarrinho = async (req, res) => {
+    try {
+        const { sessao_id, usuario_id } = req.body;
+
+        if (!sessao_id || !usuario_id) {
+            return res.status(400).json({ erro: 'Sessão e ID do usuário são obrigatórios para associar.' });
+        }
+
+        // Verifica se o visitante tem carrinho
+        const carrinhoVisitante = await sql`SELECT id FROM carrinhos WHERE sessao_id = ${sessao_id} AND usuario_id IS NULL`;
+        
+        if (carrinhoVisitante.length === 0) {
+            return res.status(200).json({ mensagem: 'Nenhum carrinho de visitante para associar.' });
+        }
+
+        const carrinhoVisitanteId = carrinhoVisitante[0].id;
+
+        // Verifica se o usuário já tem um carrinho na base
+        const carrinhoUsuario = await sql`SELECT id FROM carrinhos WHERE usuario_id = ${usuario_id}`;
+
+        if (carrinhoUsuario.length > 0) {
+            const carrinhoUsuarioId = carrinhoUsuario[0].id;
+            // Se ele já tiver, devemos migrar os itens para o carrinho existente
+            await sql`
+                UPDATE carrinho_itens 
+                SET carrinho_id = ${carrinhoUsuarioId} 
+                WHERE carrinho_id = ${carrinhoVisitanteId}
+            `;
+            // Apaga o carrinho antigo de sessão
+            await sql`DELETE FROM carrinhos WHERE id = ${carrinhoVisitanteId}`;
+        } else {
+            // Se não tiver, simplesmente transforma o carrinho da sessão no carrinho do usuário
+            await sql`
+                UPDATE carrinhos 
+                SET usuario_id = ${usuario_id}, sessao_id = NULL 
+                WHERE id = ${carrinhoVisitanteId}
+            `;
+        }
+
+        res.status(200).json({ success: true, mensagem: 'Carrinho associado com sucesso.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ erro: 'Erro interno ao associar carrinho.' });
     }
 };

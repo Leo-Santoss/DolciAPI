@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/vendas:
+ *   get:
+ *     summary: Listar todas as vendas (com dados do usuário)
+ *     tags: [Vendas]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/vendas - Listar todas as vendas (com dados do usuário)
 exports.listarTodas = async (req, res) => {
     try {
@@ -18,6 +28,22 @@ exports.listarTodas = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/vendas/{id}:
+ *   get:
+ *     summary: Buscar detalhes de uma venda específica (com seus itens)
+ *     tags: [Vendas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/vendas/:id - Buscar detalhes de uma venda específica (com seus itens)
 exports.buscarPorId = async (req, res) => {
     try {
@@ -61,6 +87,16 @@ exports.buscarPorId = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/vendas:
+ *   post:
+ *     summary: Criar uma nova venda (Checkout)
+ *     tags: [Vendas]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/vendas - Criar uma nova venda (Checkout)
 exports.criar = async (req, res) => {
     try {
@@ -110,6 +146,22 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/vendas/{id}/status:
+ *   put:
+ *     summary: Atualizar o status de uma venda (Preparando, Enviado, etc)
+ *     tags: [Vendas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/vendas/:id/status - Atualizar o status de uma venda (Preparando, Enviado, etc)
 exports.atualizarStatus = async (req, res) => {
     try {
@@ -138,6 +190,22 @@ exports.atualizarStatus = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/vendas/{id}:
+ *   delete:
+ *     summary: Cancelar/Remover uma venda
+ *     tags: [Vendas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/vendas/:id - Cancelar/Remover uma venda
 exports.remover = async (req, res) => {
     try {

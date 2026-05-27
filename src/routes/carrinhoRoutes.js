@@ -10,5 +10,6 @@ router.delete('/usuario/:usuarioId', carrinhoController.esvaziarCarrinho);
 // Rotas focadas diretamente no ID do item que está dentro do carrinho
 router.put('/itens/:itemId', carrinhoController.atualizarQuantidade);
 router.delete('/itens/:itemId', carrinhoController.removerItem);
+router.put('/associar', carrinhoController.associarCarrinho);
 
 module.exports = router;

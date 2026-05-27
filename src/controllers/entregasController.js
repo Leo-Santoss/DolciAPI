@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/entregas:
+ *   get:
+ *     summary: Listar todas as entregas (trazendo dados do pedido e cliente)
+ *     tags: [Entregas]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/entregas - Listar todas as entregas (trazendo dados do pedido e cliente)
 exports.listarTodas = async (req, res) => {
     try {
@@ -19,6 +29,22 @@ exports.listarTodas = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/entregas/pedido/{pedidoId}:
+ *   get:
+ *     summary: Buscar a entrega de um pedido específico
+ *     tags: [Entregas]
+ *     parameters:
+ *       - in: path
+ *         name: pedidoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/entregas/pedido/:pedidoId - Buscar a entrega de um pedido específico
 exports.buscarPorPedido = async (req, res) => {
     try {
@@ -38,6 +64,16 @@ exports.buscarPorPedido = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/entregas:
+ *   post:
+ *     summary: Registrar uma nova entrega para um pedido
+ *     tags: [Entregas]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/entregas - Registrar uma nova entrega para um pedido
 exports.criar = async (req, res) => {
     try {
@@ -72,6 +108,22 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/entregas/{id}/status:
+ *   put:
+ *     summary: Atualizar o status e rastreio da entrega
+ *     tags: [Entregas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/entregas/:id/status - Atualizar o status e rastreio da entrega
 exports.atualizarStatus = async (req, res) => {
     try {
@@ -100,6 +152,22 @@ exports.atualizarStatus = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/entregas/{id}:
+ *   delete:
+ *     summary: Cancelar/Remover uma entrega
+ *     tags: [Entregas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/entregas/:id - Cancelar/Remover uma entrega
 exports.remover = async (req, res) => {
     try {

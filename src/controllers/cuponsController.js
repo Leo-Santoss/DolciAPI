@@ -1,5 +1,15 @@
 const sql = require('../config/db');
 
+/**
+ * @swagger
+ * /api/cupons:
+ *   get:
+ *     summary: Listar todos os cupons (área administrativa)
+ *     tags: [Cupons]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/cupons - Listar todos os cupons (área administrativa)
 exports.listarTodos = async (req, res) => {
     try {
@@ -13,6 +23,22 @@ exports.listarTodos = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/cupons/{id}:
+ *   get:
+ *     summary: Buscar detalhes de um cupom específico
+ *     tags: [Cupons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // GET /api/cupons/:id - Buscar detalhes de um cupom específico
 exports.buscarPorId = async (req, res) => {
     try {
@@ -32,6 +58,16 @@ exports.buscarPorId = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/cupons:
+ *   post:
+ *     summary: Criar um novo cupom
+ *     tags: [Cupons]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/cupons - Criar um novo cupom
 exports.criar = async (req, res) => {
     try {
@@ -69,6 +105,22 @@ exports.criar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/cupons/{id}:
+ *   put:
+ *     summary: Atualizar um cupom (ex: inativar ou mudar validade)
+ *     tags: [Cupons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // PUT /api/cupons/:id - Atualizar um cupom (ex: inativar ou mudar validade)
 exports.atualizar = async (req, res) => {
     try {
@@ -96,6 +148,16 @@ exports.atualizar = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/cupons/validar:
+ *   post:
+ *     summary: Rota para o cliente aplicar o cupom no carrinho
+ *     tags: [Cupons]
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // POST /api/cupons/validar - Rota para o cliente aplicar o cupom no carrinho
 exports.validarCupom = async (req, res) => {
     try {
@@ -148,6 +210,22 @@ exports.validarCupom = async (req, res) => {
     }
 };
 
+/**
+ * @swagger
+ * /api/cupons/{id}:
+ *   delete:
+ *     summary: Excluir um cupom
+ *     tags: [Cupons]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
 // DELETE /api/cupons/:id - Excluir um cupom
 exports.remover = async (req, res) => {
     try {
