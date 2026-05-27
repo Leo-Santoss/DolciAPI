@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 require('dotenv').config();
 
 // Importando a conexão com o banco
@@ -32,7 +33,7 @@ const swaggerOptions = {
         info: {
             title: 'Dolci API',
             version: '1.0.0',
-            description: 'API para a loja de doces Dolci, substituindo o APP_Antigo',
+            description: 'API Oficial da loja de doces Dolci.',
         },
         components: {
             securitySchemes: {
@@ -47,7 +48,10 @@ const swaggerOptions = {
             bearerAuth: []
         }]
     },
-    apis: ['./src/routes/*.js', './src/controllers/*.js'], // Apontando para as rotas onde as anotações do swagger ficarão
+    apis: [
+        path.join(__dirname, './routes/*.js'), 
+        path.join(__dirname, './controllers/*.js')
+    ], // Apontando para as rotas onde as anotações do swagger ficarão
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
