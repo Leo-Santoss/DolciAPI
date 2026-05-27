@@ -109,7 +109,7 @@ exports.criar = async (req, res) => {
  * @swagger
  * /api/cupons/{id}:
  *   put:
- *     summary: Atualizar um cupom (ex: inativar ou mudar validade)
+ *     summary: "Atualizar um cupom (ex: inativar ou mudar validade)"
  *     tags: [Cupons]
  *     parameters:
  *       - in: path

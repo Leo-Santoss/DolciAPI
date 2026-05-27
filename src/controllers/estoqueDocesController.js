@@ -113,7 +113,7 @@ exports.definirEstoque = async (req, res) => {
  * @swagger
  * /api/estoque/doces/{doceId}/movimentar:
  *   put:
- *     summary: Adicionar ou Subtrair do estoque (Ex: +10 ou -5)
+ *     summary: "Adicionar ou Subtrair do estoque (Ex: +10 ou -5)"
  *     tags: [EstoqueDoces]
  *     parameters:
  *       - in: path
